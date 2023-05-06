@@ -1,3 +1,3 @@
-module frontend
+module github.com/NamelessOne91/frontend
 
-go 1.18
+go 1.20
