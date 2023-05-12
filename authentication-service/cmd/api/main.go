@@ -15,7 +15,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "8082"
+const webPort = "80"
 
 var counts int64
 
@@ -25,7 +25,7 @@ type Config struct {
 }
 
 func main() {
-	log.Println("Starting authentication service")
+	log.Printf("Starting authentication service on port %s\n", webPort)
 
 	conn := connectToDB()
 	if conn == nil {
@@ -68,7 +68,7 @@ func connectToDB() *sql.DB {
 	for {
 		connection, err := openDB(dsn)
 		if err != nil {
-			log.Println("Postgres not yer ready ...")
+			log.Println("Postgres not yet ready ...")
 			counts++
 		} else {
 			log.Println("Connected to Postgres")
