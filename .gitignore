@@ -25,3 +25,4 @@ go.work
 brokerApp
 frontApp
 authApp
+loggerApp
