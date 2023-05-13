@@ -34,6 +34,24 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+  
+  mailer-service:
+    build:
+      context: ./../mailer-service
+      dockerfile: ./../mailer-service/mailer-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: none
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      FROM_NAME: "Nameless One"
+      FROM_ADDRESS: nameless.one@sigil.com
 
   postgres:
     image: 'postgres:14.2'
