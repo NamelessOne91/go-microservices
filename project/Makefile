@@ -45,7 +45,7 @@ build_logger:
 ## build_mailer: builds the mailer binary as a linux executable
 build_mailer:
 	@echo "Building mailer binary..."
-	cd ../mailer-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAILER_BINARY} ./cmd/api
+	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAILER_BINARY} ./cmd/api
 	@echo "Done!"
 
 ## build_front: builds the frone end binary

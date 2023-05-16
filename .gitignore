@@ -26,4 +26,4 @@ brokerApp
 frontApp
 authApp
 loggerApp
-mailApp
+mailerApp
