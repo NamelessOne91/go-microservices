@@ -27,3 +27,6 @@ frontApp
 authApp
 loggerApp
 mailerApp
+
+# local docker volumes
+/project/db-data/*
