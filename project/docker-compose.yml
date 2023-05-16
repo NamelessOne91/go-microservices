@@ -53,6 +53,14 @@ services:
       FROM_NAME: "Nameless One"
       FROM_ADDRESS: nameless.one@sigil.com
 
+  listener-service:
+    build:
+      context: ./../listener-service
+      dockerfile: ./../listener-service/listener-service.dockerfile
+    deploy:
+      mode: replicated
+      replicas: 1
+
   postgres:
     image: 'postgres:14.2'
     ports:
