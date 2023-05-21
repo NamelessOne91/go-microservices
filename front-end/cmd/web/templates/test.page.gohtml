@@ -36,59 +36,28 @@
 
 {{define "js"}}
     <script>
-        let brokerBtn = document.getElementById("brokerBtn");
-        let authBtn = document.getElementById("authBtn");
-        let logBtn = document.getElementById("logBtn");
-        let logGBtn = document.getElementById("logGBtn");
-        let mailBtn = document.getElementById("mailBtn");
+        const rootURL = "http:\/\/localhost:8080";
+        const stdHeaders = new Headers();
+        stdHeaders.append("Content-Type", "application/json");
 
         let output = document.getElementById("output");
         let sent = document.getElementById("payload");
         let received = document.getElementById("received");
 
-        brokerBtn.addEventListener("click", function(){
-            const body = {
-                method: "POST"
-            }
-
-            fetch("http:\/\/localhost:8081", body)
-            .then( response => response.json())
-            .then( data => {
-                sent.innerHTML= "empty post request";
-                received.innerHTML = JSON.stringify(data, undefined, 4);
-                if (data.error) {
-                    console.log(data.message)
-                } else {
-                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                }
-            })
-            .catch(err => {
-                output.innerHTML += `<br><br>Error: ${err}`
-            })
-        })
-
-        authBtn.addEventListener("click", function(){
-            const payload = {
-                action: "auth",
-                auth: {
-                    email: "admin@example.com",
-                    password: "verysecret"
-                }
-            }
-
-            const headers = new Headers()
-            headers.append("Content-Type", "application/json")
-
+        function testBEService(endpoint = "\/", payload = null, headers = stdHeaders) {
+            const finalURL = rootURL + endpoint;
             const body = {
                 method: "POST",
-                body: JSON.stringify(payload),
                 headers: headers
             }
-
-            fetch("http:\/\/localhost:8081/handle", body)
+            if (payload){
+                body.body = JSON.stringify(payload);
+            }
+                
+            fetch(finalURL, body)
             .then( response => response.json())
             .then( data => {
-                sent.innerHTML= JSON.stringify(payload, undefined, 4);
+                sent.innerHTM =  payload ? JSON.stringify(payload) : "empty request payload";
                 received.innerHTML = JSON.stringify(data, undefined, 4);
                 if (data.error) {
                     output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
@@ -99,110 +68,50 @@
             .catch(err => {
                 output.innerHTML += `<br><br>Error: ${err}`
             })
-        })
+        };
 
-        logBtn.addEventListener("click", function() {
-            const payload = {
-                action: "log",
-                log: {
-                    name: "event",
-                    data: "Some kind of data"
-                }
+        let brokerBtn = document.getElementById("brokerBtn");
+        brokerBtn.addEventListener("click", () => testBEService());
+
+        let authBtn = document.getElementById("authBtn");
+        const authPayload = {
+            action: "auth",
+            auth: {
+                email: "admin@example.com",
+                password: "verysecret"
             }
+        };
+        authBtn.addEventListener("click", () => testBEService("/handle", authPayload));
 
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-
-            const body = {
-                method: "POST",
-                body: JSON.stringify(payload),
-                headers: headers
+        let logBtn = document.getElementById("logBtn");
+        let logGBtn = document.getElementById("logGBtn");
+        const logPayload =  {
+            action: "log",
+            log: {
+                name: "event",
+                data: "Some kind of data"
             }
-
-            fetch("http:\/\/localhost:8081/handle", body)
-            .then( response => response.json())
-            .then( data => {
-                sent.innerHTML= JSON.stringify(payload, undefined, 4);
-                received.innerHTML = JSON.stringify(data, undefined, 4);
-                if (data.error) {
-                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-                } else {
-                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                }
-            })
-            .catch(err => {
-                output.innerHTML += `<br><br>Error: ${err}`
-            })
-        })
-
-        logGBtn.addEventListener("click", function() {
-            const payload = {
-                action: "log",
-                log: {
-                    name: "event",
-                    data: "Some kind of gRPC data"
-                }
+        };
+        const logGPayload = {
+            action: "log",
+            log: {
+                name: "event",
+                data: "Some kind of data"
             }
+        };
+        logBtn.addEventListener("click", () => testBEService("/handle", logPayload));
+        logGBtn.addEventListener("click", () => testBEService("/log-grpc", logGPayload));
 
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-
-            const body = {
-                method: "POST",
-                body: JSON.stringify(payload),
-                headers: headers
+        let mailBtn = document.getElementById("mailBtn");
+        const mailPayload = {
+            action: "mail",
+            mail: {
+                from: "me@example.com",
+                to: "you@there",
+                subject: "Test email",
+                message: "Hello World!"
             }
-
-            fetch("http:\/\/localhost:8081/log-grpc", body)
-            .then( response => response.json())
-            .then( data => {
-                sent.innerHTML= JSON.stringify(payload, undefined, 4);
-                received.innerHTML = JSON.stringify(data, undefined, 4);
-                if (data.error) {
-                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-                } else {
-                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                }
-            })
-            .catch(err => {
-                output.innerHTML += `<br><br>Error: ${err}`
-            })
-        })
-
-        mailBtn.addEventListener("click", function(){
-            const payload = {
-                action: "mail",
-                mail: {
-                    from: "me@example.com",
-                    to: "you@there",
-                    subject: "Test email",
-                    message: "Hello World!"
-                }
-            }
-
-            const headers = new Headers()
-            headers.append("Content-Type", "application/json")
-
-            const body = {
-                method: "POST",
-                body: JSON.stringify(payload),
-                headers: headers
-            }
-
-            fetch("http:\/\/localhost:8081/handle", body)
-            .then( response => response.json())
-            .then( data => {
-                sent.innerHTML= JSON.stringify(payload, undefined, 4);
-                received.innerHTML = JSON.stringify(data, undefined, 4);
-                if (data.error) {
-                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
-                } else {
-                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
-                }
-            })
-            .catch(err => {
-                output.innerHTML += `<br><br>Error: ${err}`
-            })
-        })
+        };
+        mailBtn.addEventListener("click", () => testBEService("/handle", mailPayload));
     </script>
 {{end}}
