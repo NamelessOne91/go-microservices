@@ -17,7 +17,7 @@ type LogServer struct {
 }
 
 func (app *Config) gRPCListen() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(";%s", grpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", grpcPort))
 	if err != nil {
 		log.Fatalf("Failed to listen for gRPC: %v", err)
 	}

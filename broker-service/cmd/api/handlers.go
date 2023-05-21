@@ -124,7 +124,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 }
 
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
-	jsonData, _ := json.MarshalIndent(msg, "", "\t")
+	jsonData, _ := json.Marshal(msg)
 
 	// call mail service
 	mailServiceURL := "http://mailer-service/send"
@@ -224,7 +224,7 @@ func (app *Config) gRPCLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, err := grpc.Dial("logger-service:_5001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	conn, err := grpc.Dial("logger-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -248,7 +248,7 @@ func (app *Config) gRPCLog(w http.ResponseWriter, r *http.Request) {
 
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "logged"
+	payload.Message = "logged via gRPC"
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
