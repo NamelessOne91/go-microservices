@@ -60,7 +60,7 @@ services:
       replicas: 1
 
   postgres:
-    image: 'postgres:14.2'
+    image: 'postgres:14.8'
     ports:
       - "5432:5432"
     restart: always
