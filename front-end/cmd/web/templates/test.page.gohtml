@@ -36,7 +36,7 @@
 
 {{define "js"}}
     <script>
-        const rootURL = "http:\/\/localhost:8080";
+        const rootURL = "{{print .BrokerURL}}";
         const stdHeaders = new Headers();
         stdHeaders.append("Content-Type", "application/json");
 
