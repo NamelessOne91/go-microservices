@@ -2,12 +2,16 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
 type PostgresTestRepository struct {
 	Conn *sql.DB
 }
+
+var ErrMissingEmail = errors.New("user email has not been provided")
+var ErrMissingPassword = errors.New("user password has not been provided")
 
 func NewPostgresTestRepository(db *sql.DB) *PostgresTestRepository {
 	return &PostgresTestRepository{
@@ -21,6 +25,10 @@ func (u *PostgresTestRepository) GetAll() ([]*User, error) {
 }
 
 func (u *PostgresTestRepository) GetByEmail(email string) (*User, error) {
+	if email == "" {
+		return nil, ErrMissingEmail
+	}
+
 	user := User{
 		ID:        1,
 		FirstName: "First",
@@ -66,5 +74,8 @@ func (u *PostgresTestRepository) ResetPassword(password string, user User) error
 }
 
 func (u *PostgresTestRepository) PasswordMatches(plainText string, user User) (bool, error) {
+	if plainText == "" {
+		return false, ErrMissingPassword
+	}
 	return true, nil
 }
