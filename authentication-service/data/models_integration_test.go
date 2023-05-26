@@ -1,7 +1,6 @@
 package data
 
 import (
-	"context"
 	"testing"
 )
 
@@ -9,15 +8,24 @@ const (
 	numTestUsers = 3
 )
 
-func Test_insert(t *testing.T) {
+func Test_get_all(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping Postgres integration test")
 	}
 
-	dbContainer, connPool := SetupTestDatabase()
-	defer dbContainer.Terminate(context.Background())
+	users, err := testConfig.repository.GetAll()
+	if err != nil {
+		t.Errorf("failed to retrieve all users with error: %v", err)
+	}
+	if len(users) != numTestUsers {
+		t.Errorf("expected %d users, got %d", numTestUsers, len(users))
+	}
+}
 
-	postgresRepo := NewPostgresRepository(connPool)
+func Test_insert(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping Postgres integration test")
+	}
 
 	newUser := User{
 		FirstName: "new",
@@ -26,7 +34,7 @@ func Test_insert(t *testing.T) {
 		Active:    1,
 	}
 
-	id, err := postgresRepo.Insert(newUser)
+	id, err := testConfig.repository.Insert(newUser)
 	if err != nil {
 		t.Errorf("failed to create new user with error: %v", err)
 	}
