@@ -2,11 +2,11 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -83,13 +83,8 @@ func (r *MongoRepository) GetOne(id string) (*LogEntry, error) {
 
 	collection := r.Conn.Database("logs").Collection("logs")
 
-	docID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
 	var entry LogEntry
-	err = collection.FindOne(ctx, bson.M{"_id": docID}).Decode(&entry)
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&entry)
 	if err != nil {
 		return nil, err
 	}
@@ -113,14 +108,10 @@ func (r *MongoRepository) Update(l LogEntry) (bool, error) {
 	defer cancel()
 
 	collection := r.Conn.Database("logs").Collection("logs")
-	docID, err := primitive.ObjectIDFromHex(l.ID)
-	if err != nil {
-		return false, err
-	}
 
-	_, err = collection.UpdateOne(
+	res, err := collection.UpdateOne(
 		ctx,
-		bson.M{"_id": docID},
+		bson.M{"_id": l.ID},
 		bson.D{
 			{Key: "$set", Value: bson.D{
 				{Key: "name", Value: l.Name},
@@ -129,6 +120,10 @@ func (r *MongoRepository) Update(l LogEntry) (bool, error) {
 			}},
 		},
 	)
+
+	if res.ModifiedCount < 1 {
+		return false, fmt.Errorf("document with ID %s not found", l.ID)
+	}
 
 	if err != nil {
 		return false, err
