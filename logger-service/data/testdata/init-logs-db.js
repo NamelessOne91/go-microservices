@@ -1,25 +1,28 @@
 // Create "logs" collection and insert test documents
 db.createCollection("logs");
 
-var logs = [
+const logEntries = [
   {
-    name: "Log 1",
-    data: "Data 1",
-    created_at: new ISODate(),
-    updated_at: new ISODate()
+    _id: "61799e857fb7ed9569be5ccf",
+    name: 'Log Entry 1',
+    data: 'Data for Log Entry 1',
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
-    name: "Log 2",
-    data: "Data 2",
-    created_at: new ISODate(),
-    updated_at: new ISODate()
+    _id: "61799e857fb7ed9569be5cd0",
+    name: 'Log Entry 2',
+    data: 'Data for Log Entry 2',
+    created_at: new Date(),
+    updated_at: new Date()
   },
   {
-    name: "Log 3",
-    data: "Data 3",
-    created_at: new ISODate(),
-    updated_at: new ISODate()
+    _id: "61799e857fb7ed9569be5cd1",
+    name: 'Log Entry 3',
+    data: 'Data for Log Entry 3',
+    created_at: new Date(),
+    updated_at: new Date()
   }
 ];
 
-db.logs.insertMany(logs);
+db.logs.insertMany(logEntries);
