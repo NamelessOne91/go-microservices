@@ -13,7 +13,7 @@ import (
 
 type LogServer struct {
 	logs.UnimplementedLogServiceServer // backwards compatibility
-	Models                             data.Models
+	repo                               data.Repository
 }
 
 func (app *Config) gRPCListen() {
@@ -23,7 +23,7 @@ func (app *Config) gRPCListen() {
 	}
 
 	s := grpc.NewServer()
-	logs.RegisterLogServiceServer(s, &LogServer{Models: app.Models})
+	logs.RegisterLogServiceServer(s, &LogServer{repo: app.Repo})
 
 	log.Printf("gRPC Server started on port %s", grpcPort)
 	if err := s.Serve(lis); err != nil {
@@ -40,7 +40,7 @@ func (l *LogServer) WriteLog(ctx context.Context, req *logs.LogRequest) (*logs.L
 		Data: input.Data,
 	}
 
-	err := l.Models.LogEntry.Insert(logEntry)
+	err := l.repo.Insert(logEntry)
 	if err != nil {
 		res := &logs.LogResponse{Result: "failed"}
 		return res, err

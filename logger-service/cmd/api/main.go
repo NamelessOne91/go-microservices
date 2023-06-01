@@ -24,7 +24,7 @@ const (
 var client *mongo.Client
 
 type Config struct {
-	Models data.Models
+	Repo data.Repository
 }
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 	}()
 
 	app := Config{
-		Models: data.New(client),
+		Repo: data.NewMongoRepository(client),
 	}
 
 	// Register the RPC server
