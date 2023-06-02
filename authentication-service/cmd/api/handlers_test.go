@@ -26,18 +26,26 @@ func newTestClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
+type errReader struct{}
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+
 var errLogService = errors.New("some log-service error")
 
 func Test_authenticate(t *testing.T) {
 	tests := []struct {
 		name           string
+		bodyError      bool
 		postBody       map[string]any
 		jsonToReturn   string
 		clientError    error
 		expectedStatus int
 	}{
 		{
-			name: "Accepted request",
+			name:      "accepted request",
+			bodyError: false,
 			postBody: map[string]any{
 				"email":    "me@here.com",
 				"password": "verysecret",
@@ -50,7 +58,8 @@ func Test_authenticate(t *testing.T) {
 			expectedStatus: http.StatusAccepted,
 		},
 		{
-			name: "Missing password in POST body",
+			name:      "missing password in POST body",
+			bodyError: false,
 			postBody: map[string]any{
 				"email": "me@here.com",
 			},
@@ -59,7 +68,8 @@ func Test_authenticate(t *testing.T) {
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name: "Missing email in POST body",
+			name:      "missing email in POST body",
+			bodyError: false,
 			postBody: map[string]any{
 				"password": "verysecret",
 			},
@@ -68,7 +78,8 @@ func Test_authenticate(t *testing.T) {
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name: "Client error",
+			name:      "client error",
+			bodyError: false,
 			postBody: map[string]any{
 				"email":    "me@here.com",
 				"password": "verysecret",
@@ -79,6 +90,14 @@ func Test_authenticate(t *testing.T) {
 			}`,
 			clientError:    errLogService,
 			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name:           "error reading body",
+			bodyError:      true,
+			postBody:       nil,
+			jsonToReturn:   `{}`,
+			clientError:    nil,
+			expectedStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -97,8 +116,13 @@ func Test_authenticate(t *testing.T) {
 			})
 			testApp.Client = client
 
-			body, _ := json.Marshal(tt.postBody)
-			req, _ := http.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+			var req *http.Request
+			if tt.bodyError {
+				req, _ = http.NewRequest("POST", "/authenticate", errReader{})
+			} else {
+				body, _ := json.Marshal(tt.postBody)
+				req, _ = http.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+			}
 
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(testApp.Authenticate)

@@ -17,7 +17,7 @@ type PostgresRepository struct {
 }
 
 // NewPostgresRepository return an implementation of PostgresRepository allowing
-// to execute queries against the underlying SQL dB
+// to execute queries against the underlying SQL DB
 func NewPostgresRepository(pool *sql.DB) *PostgresRepository {
 	return &PostgresRepository{
 		Conn: pool,
