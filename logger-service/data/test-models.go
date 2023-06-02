@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"errors"
 	"log"
 	"path/filepath"
 	"time"
@@ -16,6 +17,9 @@ type MongoTestRepository struct {
 	Conn *mongo.Client
 }
 
+var ErrNoName = errors.New("empty or missing name field")
+var ErrNoData = errors.New("empty or missing data field")
+
 func NewMongoTestRepository(conn *mongo.Client) *MongoTestRepository {
 	return &MongoTestRepository{
 		Conn: conn,
@@ -23,6 +27,12 @@ func NewMongoTestRepository(conn *mongo.Client) *MongoTestRepository {
 }
 
 func (r *MongoTestRepository) Insert(entry LogEntry) error {
+	if entry.Name == "" {
+		return ErrNoName
+	}
+	if entry.Data == "" {
+		return ErrNoData
+	}
 	return nil
 }
 
