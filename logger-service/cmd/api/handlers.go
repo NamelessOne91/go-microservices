@@ -14,7 +14,11 @@ type JSONPayload struct {
 func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) {
 	// read json into var
 	var requestPayload JSONPayload
-	_ = app.readJSON(w, r, &requestPayload)
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
 
 	// insert data
 	event := data.LogEntry{
@@ -22,7 +26,7 @@ func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) {
 		Data: requestPayload.Data,
 	}
 
-	err := app.Repo.Insert(event)
+	err = app.Repo.Insert(event)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
