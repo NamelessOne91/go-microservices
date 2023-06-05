@@ -21,8 +21,6 @@ const (
 	grpcPort = "50001"
 )
 
-var client *mongo.Client
-
 type Config struct {
 	Repo data.Repository
 }
@@ -33,7 +31,6 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	client = mongoClient
 
 	// create a context in order to disconnect
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -41,17 +38,21 @@ func main() {
 
 	//close connection
 	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
+		if err = mongoClient.Disconnect(ctx); err != nil {
 			panic(err)
 		}
 	}()
 
 	app := Config{
-		Repo: data.NewMongoRepository(client),
+		Repo: data.NewMongoRepository(mongoClient),
 	}
 
 	// Register the RPC server
-	err = rpc.Register(new(RPCServer))
+	err = rpc.Register(
+		RPCServer{
+			repo: data.NewMongoRepository(mongoClient),
+		},
+	)
 	go app.rpcListen()
 
 	go app.gRPCListen()
